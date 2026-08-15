@@ -1,0 +1,12 @@
+# dsh-prompt-optimize — profile bundle patch
+# Install:
+#   dsh plugin --profile web add "github:OWNER/dsh-prompt-optimize"
+#   # or local:
+#   dsh plugin --profile web add "file:./dsh-prompt-optimize"
+# Then restart: dsh --profile web
+- insert:
+    - id: prompt-optimize
+      name: dsh-prompt-optimize
+      config:
+        provider: deepseek-official
+        model: deepseek-v4-flash

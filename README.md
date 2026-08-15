@@ -1,0 +1,98 @@
+# dsh-prompt-optimize
+
+[![dsh-plugin](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
+
+DeepSeek Harness (DSH) Web 插件：在对话输入框工具行增加 **优化提示词** 图标按钮。
+
+1. 读取当前草稿  
+2. 点击后图标 loading（不弹全屏窗）  
+3. 默认用 `deepseek-official` / `deepseek-v4-flash` 改写  
+4. 完成后在按钮上方 **气泡预览**  
+5. 点 **应用** 才写入输入框  
+
+## 安装
+
+需要已安装 [DSH](https://github.com/deepseek-ai) / `npx @deepseek-ai/dsh`，且 `pnpm` 在 `PATH` 中。
+
+### 从 GitHub（推荐发布后）
+
+```sh
+dsh plugin --profile web add "github:184712373/dsh-prompt-optimize"
+```
+
+
+### 从本地路径（开发 / 未推送时）
+
+```sh
+# 在仓库父目录执行，路径按实际修改
+dsh plugin --profile web add "file:./dsh-prompt-optimize"
+# 或
+dsh plugin --profile web add "link:C:/Users/you/path/dsh-prompt-optimize"
+```
+
+### 从 npm（可选，`npm publish` 之后）
+
+```sh
+dsh plugin --profile web add dsh-prompt-optimize
+```
+
+安装或更新后 **重启** Web profile：
+
+```sh
+dsh --profile web
+# 或
+npx @deepseek-ai/dsh web
+```
+
+设置 → **插件** 中应能看到本包。任意会话输入框右侧出现 **星星图标**。
+
+## 卸载
+
+```sh
+dsh plugin --profile web remove dsh-prompt-optimize
+```
+
+然后重启 DSH。
+
+## 配置
+
+`cordis.patch.yml` / profile patch 中可改：
+
+```yaml
+- insert:
+    - id: prompt-optimize
+      name: dsh-prompt-optimize
+      config:
+        provider: deepseek-official
+        model: deepseek-v4-flash
+        maxInputChars: 24000
+        maxOutputTokens: 4096
+        temperature: 0.3
+```
+
+若默认 provider 未配置，Host 会回退到当前第一个可用 provider，并在气泡 meta 中标注「已回退」。
+
+## 依赖
+
+- Host：`llm`、`webServer`（DSH Web profile 已有）  
+- Client：`slots`（输入区 Slot）  
+- 需在设置中配置可用的 LLM（建议 DeepSeek API Key）
+
+## 发布到 GitHub `dsh-plugin` Topic
+
+1. 新建 **Public** 仓库，推送本目录全部文件  
+2. 把 `package.json` 里的 `YOUR_GITHUB_USERNAME` 换成真实用户名  
+3. 仓库 About → Topics 添加 **`dsh-plugin`**（可选：`deepseek-harness`、`dsh`）  
+4. README 安装命令改为真实 `github:user/dsh-prompt-optimize`  
+5. （可选）`npm publish`  
+
+无需官方审核；社区目录会从 [topics/dsh-plugin](https://github.com/topics/dsh-plugin) 聚合。
+
+## 与动态插件源码的关系
+
+工作区若仍保留 `prompt-optimize-plugin/`（`cordis_define` 用的 host.js/client.js），那是 **会话内动态插件** 原型，进程重启即失效。  
+**本目录是正式 bundle**：`dsh plugin add` 进 profile，重启仍可用。
+
+## License
+
+MIT

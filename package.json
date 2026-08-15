@@ -1,0 +1,59 @@
+{
+  "name": "dsh-prompt-optimize",
+  "version": "0.1.0",
+  "description": "DSH Web：输入框旁图标一键优化提示词（快模型改写 + 气泡预览后应用）",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek",
+    "deepseek-harness",
+    "prompt",
+    "prompt-optimize"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1847123733/dsh-prompt-optimize.git"
+  },
+  "homepage": "https://github.com/1847123733/dsh-prompt-optimize#readme",
+  "bugs": {
+    "url": "https://github.com/1847123733/dsh-prompt-optimize/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-host-webserver": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.0.0",
+    "react": "^18.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
