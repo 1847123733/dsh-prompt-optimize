@@ -66,7 +66,7 @@ dsh plugin --profile web remove dsh-prompt-optimize
         provider: deepseek-official
         model: deepseek-v4-flash
         maxInputChars: 24000
-        maxOutputTokens: 4096
+        maxOutputTokens: 1024
         temperature: 0.3
 ```
 

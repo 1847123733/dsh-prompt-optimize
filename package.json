@@ -1,8 +1,11 @@
 {
   "name": "dsh-prompt-optimize",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DSH Web：输入框旁图标一键优化提示词（快模型改写 + 气泡预览后应用）",
   "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
