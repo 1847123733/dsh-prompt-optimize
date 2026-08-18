@@ -2,13 +2,21 @@
 
 [![dsh-plugin](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
 
-DeepSeek Harness (DSH) Web 插件：在对话输入框工具行增加 **优化提示词** 图标按钮。
+DeepSeek Harness (DSH) Web 插件：在对话输入框工具行增加 **优化提示词** 图标按钮，并在问答页提供 **用户提问锚点**。
 
 1. 读取当前草稿  
 2. 点击后图标 loading（不弹全屏窗）  
 3. 默认用 `deepseek-official` / `deepseek-v4-flash` 改写  
 4. 完成后在按钮上方 **气泡预览**  
 5. 点 **应用** 才写入输入框  
+
+## 用户提问锚点
+
+- 自动按对话顺序收集用户提问及已接纳的追加提问（不混入助手回答）
+- 问答页右侧显示轻量锚点，顶部标注提问数量
+- 鼠标悬浮或键盘聚焦时显示完整提问内容
+- 点击后平滑滚动到对应的用户消息
+- 窄屏下自动移到输入区上方并改为横向排列
 
 ## 安装
 
