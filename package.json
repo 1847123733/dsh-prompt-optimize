@@ -1,7 +1,7 @@
 {
   "name": "dsh-prompt-optimize",
-  "version": "0.3.0",
-  "description": "DSH Web：输入框旁图标一键优化提示词（快模型改写 + 气泡预览后应用）",
+  "version": "0.4.0",
+  "description": "DSH Web：提示词优化、提问锚点与 DeepSeek API 悬浮用量卡片",
   "type": "module",
   "scripts": {
     "test": "node --test"
@@ -51,6 +51,7 @@
     }
   },
   "peerDependencies": {
+    "@deepseek-ai/dsh-credentials": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-host-webserver": "^0.1.0-rc.6",
     "@deepseek-ai/dsh-llm": "^0.1.0-rc.6",
     "@deepseek-ai/schemastery": "^3.0.0",

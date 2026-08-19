@@ -2,7 +2,7 @@
 
 [![dsh-plugin](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
 
-DeepSeek Harness (DSH) Web 插件：在对话输入框工具行增加 **优化提示词** 图标按钮，并在问答页提供 **用户提问锚点**。
+DeepSeek Harness (DSH) Web 插件：提供 **提示词优化**、**用户提问锚点**，以及右下角的 **DeepSeek API 悬浮用量卡片**。
 
 1. 读取当前草稿  
 2. 点击后图标 loading（不弹全屏窗）  
@@ -17,6 +17,15 @@ DeepSeek Harness (DSH) Web 插件：在对话输入框工具行增加 **优化�
 - 鼠标悬浮或键盘聚焦时显示完整提问内容
 - 点击后平滑滚动到对应的用户消息
 - 窄屏下自动移到输入区上方并改为横向排列
+
+## DeepSeek API 悬浮用量
+
+- 复用 DSH 在“设置 → 模型”中保存的 `DEEPSEEK_API_KEY`，无需重复配置
+- 页面右下角显示轻量悬浮胶囊，悬浮或点击后展开卡片
+- 显示脱敏 Key、当前余额、近 30 天消费、请求次数和 Tokens
+- 每 60 秒自动刷新，也支持手动刷新
+- 完整 API Key 仅在 DSH 宿主端解析，不会返回浏览器
+- 用量来自 `GET https://api.deepseek.com/v1/usage`；若 DeepSeek 对当前账号返回 404，卡片仍显示余额，并提示用量接口暂不可用
 
 ## 安装
 
@@ -76,6 +85,7 @@ dsh plugin --profile web remove dsh-prompt-optimize
         maxInputChars: 24000
         maxOutputTokens: 1024
         temperature: 0.3
+        usageDays: 30
 ```
 
 若默认 provider 未配置，Host 会回退到当前第一个可用 provider，并在气泡 meta 中标注「已回退」。
