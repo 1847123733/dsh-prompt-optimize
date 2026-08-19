@@ -22,10 +22,26 @@ DeepSeek Harness (DSH) Web 插件：提供 **提示词优化**、**用户提问�
 
 - 复用 DSH 在“设置 → 模型”中保存的 `DEEPSEEK_API_KEY`，无需重复配置
 - 页面右下角显示轻量悬浮胶囊，悬浮或点击后展开卡片
-- 显示脱敏 Key、当前余额、近 30 天消费、请求次数和 Tokens
+- 显示当前配置 Key 的名称、脱敏标识，以及今天、昨天、最近 7 天消费金额
+- 账号余额单独展示，不再与单个 Key 的消费混淆
 - 每 60 秒自动刷新，也支持手动刷新
-- 完整 API Key 仅在 DSH 宿主端解析，不会返回浏览器
-- 用量来自 `GET https://api.deepseek.com/v1/usage`；若 DeepSeek 对当前账号返回 404，卡片仍显示余额，并提示用量接口暂不可用
+- 完整 API Key 和平台 Token 仅在 DSH 宿主端解析，不会返回浏览器
+- 余额来自公开接口 `GET https://api.deepseek.com/user/balance`
+- 单 Key 消费来自平台内部接口 `GET https://platform.deepseek.com/api/v0/usage/by_api_key/cost`，按返回的 `sensitive_id` 匹配当前 Key 的 `tracking_id`
+
+### 配置单 Key 用量
+
+平台用量接口使用 DeepSeek 开放平台的登录态，不接受普通 `sk-...` API Key。插件源码内
+包含一个默认平台 Token；如需替换，可通过 DSH 凭据提供器或环境变量覆盖：
+
+```text
+DEEPSEEK_PLATFORM_TOKEN=<Usage 页面请求中 Authorization 的 Bearer 值>
+```
+
+- `DEEPSEEK_PLATFORM_TOKEN` 可填写纯 Token，也可包含 `Bearer ` 前缀，无需配置 Cookie。
+- 环境变量的值优先于源码默认值。
+- 这是 DeepSeek 未公开承诺稳定性的站内接口；登录态过期、WAF 拦截或接口变更时，卡片会继续显示账号余额，并提示当前 Key 用量不可用。
+- 金额按 GMT+8 自然日统计；平台数据可能延迟约 5 分钟。
 
 ## 安装
 
@@ -85,7 +101,6 @@ dsh plugin --profile web remove dsh-prompt-optimize
         maxInputChars: 24000
         maxOutputTokens: 1024
         temperature: 0.3
-        usageDays: 30
 ```
 
 若默认 provider 未配置，Host 会回退到当前第一个可用 provider，并在气泡 meta 中标注「已回退」。

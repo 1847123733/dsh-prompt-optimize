@@ -1,6 +1,6 @@
 {
   "name": "dsh-prompt-optimize",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "DSH Web：提示词优化、提问锚点与 DeepSeek API 悬浮用量卡片",
   "type": "module",
   "scripts": {

@@ -73,10 +73,9 @@ test('defaults prompt rewrites to a compact output budget', async () => {
   const result = await Config['~standard'].validate({})
 
   assert.equal(result.value.maxOutputTokens, 1024)
-  assert.equal(result.value.usageDays, 30)
 })
 
-test('returns masked DeepSeek key, balance, and aggregated usage', async () => {
+test('returns balance and cost periods for the configured DeepSeek API key', async () => {
   const routes = new Map()
   const originalFetch = globalThis.fetch
   const calls = []
@@ -98,29 +97,62 @@ test('returns masked DeepSeek key, balance, and aggregated usage', async () => {
         { status: 200 },
       )
     }
-    return new Response(
-      JSON.stringify({
-        data: [
-          {
-            total_tokens: 1200,
-            request_count: 3,
-            cost_by_currency: { CNY: 1.25 },
-          },
-          {
-            total_tokens: 800,
-            request_count: 2,
-            cost_by_currency: { CNY: 0.75 },
-          },
-        ],
-      }),
-      { status: 200 },
-    )
+    const requestUrl = new URL(String(url))
+    const end = Number(requestUrl.searchParams.get('end'))
+    return new Response(JSON.stringify({
+      code: 0,
+      msg: '',
+      data: {
+        biz_code: 0,
+        biz_msg: '',
+        biz_data: {
+          start: Number(requestUrl.searchParams.get('start')),
+          end,
+          bucket: 86400,
+          models: ['deepseek-v4-flash'],
+          data: [{
+            currency: 'CNY',
+            series: [
+              {
+                api_key: {
+                  tracking_id: 'matching-key',
+                  name: '测试-harness',
+                  sensitive_id: 'sk-12345****************abcd',
+                  valid: true,
+                },
+                model: 'deepseek-v4-flash',
+                buckets: [
+                  { time: end - 86400, cost: '1.25' },
+                  { time: end - 172800, cost: '2.50' },
+                  { time: end - 259200, cost: '3.75' },
+                ],
+              },
+              {
+                api_key: {
+                  tracking_id: 'other-key',
+                  name: '其他',
+                  sensitive_id: 'sk-other****************0000',
+                  valid: true,
+                },
+                model: 'deepseek-v4-flash',
+                buckets: [{ time: end - 86400, cost: '999' }],
+              },
+            ],
+          }],
+        },
+      },
+    }), { status: 200 })
   }
 
   try {
     const ctx = {
       credentials: {
-        resolve: async () => ({ value: 'sk-1234567890abcd' }),
+        resolve: async (ref) => ({
+          value: {
+            DEEPSEEK_API_KEY: 'sk-1234567890abcd',
+            DEEPSEEK_PLATFORM_TOKEN: 'platform-token',
+          }[ref],
+        }),
       },
       llm: { listProviders: () => [] },
       effect(register) {
@@ -138,7 +170,6 @@ test('returns masked DeepSeek key, balance, and aggregated usage', async () => {
       maxInputChars: 24_000,
       maxOutputTokens: 1024,
       temperature: 0.3,
-      usageDays: 30,
     })
 
     const req = createRequest({})
@@ -150,12 +181,26 @@ test('returns masked DeepSeek key, balance, and aggregated usage', async () => {
     const body = JSON.parse(res.body)
     assert.equal(res.status, 200)
     assert.equal(body.key, 'sk-••••••••abcd')
-    assert.equal(body.usage.costs.CNY, 2)
-    assert.equal(body.usage.tokens, 2000)
-    assert.equal(body.usage.requests, 5)
+    assert.deepEqual(body.keyUsage, {
+      currency: 'CNY',
+      trackingId: 'matching-key',
+      name: '测试-harness',
+      today: 1.25,
+      yesterday: 2.5,
+      last7Days: 7.5,
+    })
     assert.equal(calls.length, 2)
-    assert.match(calls[1].url, /\/v1\/usage\?/)
+    assert.match(calls[1].url, /\/api\/v0\/usage\/by_api_key\/cost\?/)
+    const usageUrl = new URL(calls[1].url)
+    assert.equal(
+      Number(usageUrl.searchParams.get('end')) -
+        Number(usageUrl.searchParams.get('start')),
+      7 * 86400,
+    )
+    assert.equal(usageUrl.searchParams.get('tz'), '28800')
     assert.equal(calls[0].options.headers.authorization, 'Bearer sk-1234567890abcd')
+    assert.equal(calls[1].options.headers.authorization, 'Bearer platform-token')
+    assert.equal('cookie' in calls[1].options.headers, false)
   } finally {
     globalThis.fetch = originalFetch
   }
