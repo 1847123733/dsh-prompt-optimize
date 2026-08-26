@@ -2,7 +2,16 @@
 
 [![dsh-plugin](https://img.shields.io/badge/topic-dsh--plugin-blue)](https://github.com/topics/dsh-plugin)
 
-DeepSeek Harness (DSH) Web 插件：提供 **提示词优化**、**用户提问锚点**，以及右下角的 **DeepSeek API 悬浮用量卡片**。
+DeepSeek Harness (DSH) Web 插件：提供 **提示词优化**、**个性化自定义指令**、**用户提问锚点**，以及右下角的 **DeepSeek API 悬浮用量卡片**。
+
+## 个性化自定义指令
+
+- 在“设置 → 个性化”中编辑此主机的自定义指令
+- 保存到 DSH 的主机设置文件，刷新或重启后仍然保留
+- 保存后实时生效，从下一次 AI 请求开始注入所有任务的系统上下文
+- 支持清空并保存，以停用自定义指令
+
+## 提示词优化
 
 1. 读取当前草稿  
 2. 点击后图标 loading（不弹全屏窗）  

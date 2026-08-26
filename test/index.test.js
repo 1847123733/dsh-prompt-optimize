@@ -75,6 +75,77 @@ test('defaults prompt rewrites to a compact output budget', async () => {
   assert.equal(result.value.maxOutputTokens, 1024)
 })
 
+test('persists custom instructions and injects them into the system prompt', async () => {
+  const routes = new Map()
+  let stored = { customInstructions: '' }
+  let promptSection
+  const watchers = new Set()
+  const ctx = {
+    credentials: { resolve: async () => null },
+    llm: { listProviders: () => [] },
+    settings: {
+      register(ns) {
+        assert.equal(ns, 'prompt-optimize-personalization')
+        return {
+          get: () => stored,
+          watch(callback) {
+            watchers.add(callback)
+            return () => watchers.delete(callback)
+          },
+          async replace(next) {
+            const previous = stored
+            stored = next
+            for (const callback of watchers) await callback(next, previous)
+          },
+        }
+      },
+    },
+    systemPrompt: {
+      section(section) {
+        promptSection = section
+        return () => {}
+      },
+    },
+    emit() {},
+    effect(register) {
+      register()
+    },
+    webServer: {
+      register(route) {
+        routes.set(route.path, route.handler)
+        return () => {}
+      },
+    },
+  }
+
+  apply(ctx, {
+    provider: 'deepseek-official',
+    model: 'deepseek-v4-flash',
+    maxInputChars: 24_000,
+    maxOutputTokens: 1024,
+    temperature: 0.3,
+  })
+
+  const put = createRequest({ customInstructions: '优先使用中文。\r\n完成后运行测试。' })
+  put.method = 'PUT'
+  const putResponse = createResponse()
+  await routes.get('/api/prompt-optimize/personalization')(put, putResponse)
+  await putResponse.completed
+
+  assert.equal(putResponse.status, 200)
+  assert.equal(stored.customInstructions, '优先使用中文。\n完成后运行测试。')
+  assert.equal(promptSection.name, 'prompt-optimize:custom-instructions')
+  assert.match(promptSection.text(), /# Custom Instructions/)
+  assert.match(promptSection.text(), /优先使用中文。\n完成后运行测试。/)
+
+  const get = createRequest({})
+  get.method = 'GET'
+  const getResponse = createResponse()
+  await routes.get('/api/prompt-optimize/personalization')(get, getResponse)
+  await getResponse.completed
+  assert.deepEqual(JSON.parse(getResponse.body), stored)
+})
+
 test('returns balance and cost periods for the configured DeepSeek API key', async () => {
   const routes = new Map()
   const originalFetch = globalThis.fetch

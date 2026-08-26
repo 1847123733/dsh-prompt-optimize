@@ -1,7 +1,7 @@
 {
   "name": "dsh-prompt-optimize",
-  "version": "0.6.0",
-  "description": "DSH Web：提示词优化、提问锚点与 DeepSeek API 悬浮用量卡片",
+  "version": "0.7.0",
+  "description": "DSH Web：提示词优化、个性化指令、提问锚点与 DeepSeek API 悬浮用量卡片",
   "type": "module",
   "scripts": {
     "test": "node --test"
